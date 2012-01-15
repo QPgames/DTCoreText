@@ -42,8 +42,6 @@
 - (NSArray *)textAttachments;
 - (NSArray *)textAttachmentsWithPredicate:(NSPredicate *)predicate;
 
-- (void)correctLineOrigins;
-
 - (NSAttributedString *)attributedStringFragment;
 
 // working with Paragraphs
