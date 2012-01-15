@@ -293,6 +293,8 @@
 	NSRange allRange = NSMakeRange(0, [_attributedString length]);
 	[_attributedString enumerateAttribute:(id)kCTParagraphStyleAttributeName inRange:allRange options:NSAttributedStringEnumerationLongestEffectiveRangeNotRequired
 					   usingBlock:^(id value, NSRange range, BOOL *stop) {
+                           (void) range;
+                           (void) stop;
 						   CTParagraphStyleRef paragraphStyle = (__bridge CTParagraphStyleRef)value;
 						   
 						   float paraSpacing;

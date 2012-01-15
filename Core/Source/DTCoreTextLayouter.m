@@ -8,6 +8,8 @@
 
 #import "DTCoreTextLayouter.h"
 
+
+
 @interface DTCoreTextLayouter ()
 
 @property (nonatomic, strong) NSMutableArray *frames;
@@ -113,7 +115,7 @@
 		{
 			if (!framesetter)
 			{
-				framesetter = CTFramesetterCreateWithAttributedString((__bridge CFAttributedStringRef)self.attributedString);
+				framesetter = CTFramesetterCreateWithAttributedString((__bridge CFAttributedStringRef) self.attributedString);
 			}
 		}
 		SYNCHRONIZE_END(self)
@@ -165,7 +167,6 @@
 
 
 
-@synthesize attributedString = _attributedString;
 @synthesize frames;
 @synthesize framesetter;
 

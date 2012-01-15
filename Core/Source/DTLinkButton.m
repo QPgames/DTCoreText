@@ -56,6 +56,9 @@
 	if (self.highlighted)
 	{
 		CGRect imageRect = [self contentRectForBounds:self.bounds];
+        if (!CGRectIntersectsRect(imageRect, rect)) {
+            return;
+        }
 		
 		UIBezierPath *roundedPath = [UIBezierPath bezierPathWithRoundedRect:imageRect cornerRadius:3.0f];
 		CGContextSetGrayFillColor(ctx, 0.73f, 0.4f);

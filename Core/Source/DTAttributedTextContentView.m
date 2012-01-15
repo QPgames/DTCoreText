@@ -362,6 +362,8 @@ static Class _layerClassToUseForDTAttributedTextContentView = nil;
 
 - (void)drawLayer:(CALayer *)layer inContext:(CGContextRef)ctx
 {
+    (void) layer;
+    
 	// needs clearing of background
 	CGRect rect = CGContextGetClipBoundingBox(ctx);
 	
@@ -397,6 +399,7 @@ static Class _layerClassToUseForDTAttributedTextContentView = nil;
 
 - (void)drawRect:(CGRect)rect
 {
+    (void) rect;
 	CGContextRef context = UIGraphicsGetCurrentContext();
 	[self.layoutFrame drawInContext:context];
 }

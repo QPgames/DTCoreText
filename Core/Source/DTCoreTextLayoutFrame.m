@@ -101,24 +101,50 @@ static BOOL _DTCoreTextLayoutFramesShouldDrawDebugFrames = NO;
 
 - (void)buildLines
 {
-	// get lines (don't own it so no release)
-	CFArrayRef cflines = CTFrameGetLines(_textFrame);
-	
-	if (!cflines)
-	{
-		// probably no string set
-		return;
-	}
-	
-	CGPoint *origins = malloc(sizeof(CGPoint)*CFArrayGetCount(cflines));
+    NSMutableArray *lines = [NSMutableArray array];
+    {
+        // get lines (don't own it so no release)
+        CFArrayRef cflines = CTFrameGetLines(_textFrame);
+        
+        if (cflines == NULL) {
+            // probably no string set
+            return;
+        }
+        
+        // Did the line break at a soft-hyphen?
+        NSString *string = [_attributedStringFragment string];
+        
+        unichar hypenCharacter = 0xad;
+        NSString *softHyphen = [NSString stringWithCharacters:&hypenCharacter length:1];
+        
+        for (CFIndex lineIndex = 0;
+             lineIndex < CFArrayGetCount(cflines);
+             ++lineIndex)
+        {
+            CTLineRef line = (CTLineRef) CFArrayGetValueAtIndex(cflines, lineIndex);
+            CFRange cfrange = CTLineGetStringRange(line);
+            
+            // Is the last character a soft-hypen?
+            NSRange hyphenRange = [string rangeOfString:softHyphen options:0 range:NSMakeRange(cfrange.location + cfrange.length - 1, 1)];
+            if (hyphenRange.location != NSNotFound) {
+                NSRange lineRange = NSMakeRange(cfrange.location, cfrange.length);
+                NSMutableAttributedString *lineString = [[_attributedStringFragment attributedSubstringFromRange:lineRange] mutableCopy];
+                [lineString replaceCharactersInRange:NSMakeRange(cfrange.length - 1, 1) withString:@"-"];
+                line = CTLineCreateWithAttributedString((__bridge CFAttributedStringRef) lineString);
+            };
+            
+            [lines addObject:(__bridge id) line];
+        }
+    }
+    
+    
+	CGPoint *origins = malloc(sizeof(CGPoint) * [lines count]);
 	CTFrameGetLineOrigins(_textFrame, CFRangeMake(0, 0), origins);
-	
-	NSMutableArray *tmpLines = [[NSMutableArray alloc] initWithCapacity:CFArrayGetCount(cflines)];
 	
 	NSInteger lineIndex = 0;
 	
-	for (id oneLine in (__bridge NSArray *)cflines)
-	{
+    NSMutableArray *tmpLines = [NSMutableArray array];
+	for (id oneLine in lines) {
 		CGPoint lineOrigin = origins[lineIndex];
 		
 		lineOrigin.y = _frame.size.height - lineOrigin.y + _frame.origin.y;
@@ -136,15 +162,6 @@ static BOOL _DTCoreTextLayoutFramesShouldDrawDebugFrames = NO;
 
 	// line origins are wrong on last line of paragraphs
 	[self correctLineOrigins];
-	
-	
-	// --- begin workaround for image squishing bug in iOS < 4.2
-	DTVersion version = [[UIDevice currentDevice] osVersion];
-	
-	if (version.major<4 || (version.major==4 && version.minor < 2))
-	{
-		[self correctAttachmentHeights];
-	}
 	
 	// at this point we can correct the frame if it is open-ended
 	if ([_lines count] && _frame.size.height == CGFLOAT_OPEN_HEIGHT)
@@ -732,33 +749,6 @@ static BOOL _DTCoreTextLayoutFramesShouldDrawDebugFrames = NO;
 	
 	return NSMakeRange(firstParagraphIndex, lastParagraphIndex - firstParagraphIndex + 1);
 }
-
-#pragma mark Corrections
-- (void)correctAttachmentHeights
-{
-	CGFloat downShiftSoFar = 0;
-	
-	for (DTCoreTextLayoutLine *oneLine in self.lines)
-	{
-		CGFloat lineShift = 0;
-		if ([oneLine correctAttachmentHeights:&lineShift])
-		{
-			downShiftSoFar += lineShift;
-		}
-		
-		if (downShiftSoFar>0)
-		{
-			// shift the frame baseline down for the total shift so far
-			CGPoint origin = oneLine.baselineOrigin;
-			origin.y += downShiftSoFar;
-			oneLine.baselineOrigin = origin;
-			
-			// increase the ascent by the extend needed for this lines attachments
-			oneLine.ascent += lineShift;
-		}
-	}
-}
-
 
 // a bug in CoreText shifts the last line of paragraphs slightly down
 - (void)correctLineOrigins
