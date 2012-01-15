@@ -160,9 +160,6 @@ static BOOL _DTCoreTextLayoutFramesShouldDrawDebugFrames = NO;
 
 	_lines = tmpLines;
 
-	// line origins are wrong on last line of paragraphs
-	[self correctLineOrigins];
-	
 	// at this point we can correct the frame if it is open-ended
 	if ([_lines count] && _frame.size.height == CGFLOAT_OPEN_HEIGHT)
 	{
@@ -748,42 +745,6 @@ static BOOL _DTCoreTextLayoutFramesShouldDrawDebugFrames = NO;
 	}
 	
 	return NSMakeRange(firstParagraphIndex, lastParagraphIndex - firstParagraphIndex + 1);
-}
-
-// a bug in CoreText shifts the last line of paragraphs slightly down
-- (void)correctLineOrigins
-{
-	DTCoreTextLayoutLine *previousLine = nil;
-	
-	CGPoint previousLineOrigin = CGPointZero;
-
-	if (![self.lines count])
-	{
-		return;
-	}
-	
-	previousLineOrigin = [[self.lines objectAtIndex:0] baselineOrigin];
-	
-	for (DTCoreTextLayoutLine *currentLine in self.lines)
-	{
-		CGPoint currentOrigin;
-		
-		if (previousLine)
-		{
-			currentOrigin.y = previousLineOrigin.y + previousLine.descent + currentLine.ascent + currentLine.leading + [previousLine paragraphSpacing];
-			
-			currentOrigin.x = currentLine.baselineOrigin.x;
-			
-			previousLineOrigin = currentOrigin;
-			
-			currentOrigin.y = roundf(currentOrigin.y);
-			//	origin.x = roundf(origin.x);
-			
-			currentLine.baselineOrigin = currentOrigin;
-		}
-		
-		previousLine = currentLine;
-	}
 }
 
 #pragma mark Properties
