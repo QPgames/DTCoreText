@@ -63,8 +63,9 @@
 - (void)dealloc
 {
 	CFRelease(_line);
-	
-	dispatch_release(layoutLock);
+	if (layoutLock != NULL) {
+        dispatch_release(layoutLock);
+    }
 }
 
 - (NSString *)description
