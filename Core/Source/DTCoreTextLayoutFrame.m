@@ -170,6 +170,16 @@ static BOOL _DTCoreTextLayoutFramesShouldDrawDebugFrames = NO;
 	}
 }
 
+- (NSRange)attributedStringRangeForPoint:(CGPoint)point;
+{
+    DTCoreTextLayoutLine *line = [self lineAtLocation:point];
+    NSInteger i = [line stringIndexForPosition:point];
+    if (i != NSNotFound) {
+        return NSMakeRange(i, 1);
+    }
+    return NSMakeRange(NSNotFound, 0);
+}
+
 - (NSArray *)lines
 {
 	if (!_lines)
@@ -178,6 +188,16 @@ static BOOL _DTCoreTextLayoutFramesShouldDrawDebugFrames = NO;
 	}
 	
 	return _lines;
+}
+
+- (DTCoreTextLayoutLine *)lineAtLocation:(CGPoint)point;
+{
+	for (DTCoreTextLayoutLine *oneLine in self.lines) {
+        if (CGRectContainsPoint(oneLine.frame, point)) {
+            return oneLine;
+        }
+	}
+    return nil;
 }
 
 - (NSArray *)linesVisibleInRect:(CGRect)rect
