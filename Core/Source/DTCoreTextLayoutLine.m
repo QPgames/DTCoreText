@@ -15,7 +15,7 @@
 @interface DTCoreTextLayoutLine ()
 
 @property (nonatomic, strong) NSArray *glyphRuns;
-@property (nonatomic, assign) dispatch_semaphore_t layoutLock;
+@property (nonatomic, strong) dispatch_semaphore_t layoutLock;
 
 @end
 
@@ -63,9 +63,6 @@
 - (void)dealloc
 {
 	CFRelease(_line);
-	if (layoutLock != NULL) {
-        dispatch_release(layoutLock);
-    }
 }
 
 - (NSString *)description

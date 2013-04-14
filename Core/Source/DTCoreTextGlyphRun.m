@@ -21,7 +21,7 @@
 @property (nonatomic, assign) CGRect frame;
 @property (nonatomic, assign) NSInteger numberOfGlyphs;
 @property (nonatomic, unsafe_unretained, readwrite) NSDictionary *attributes;
-@property (nonatomic, assign) dispatch_semaphore_t runLock;
+@property (nonatomic, strong) dispatch_semaphore_t runLock;
 
 @end
 
@@ -78,8 +78,6 @@
 	{
 		CFRelease(_run);
 	}
-	
-	dispatch_release(runLock);
 }
 
 - (NSString *)description

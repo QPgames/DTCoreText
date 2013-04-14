@@ -13,7 +13,7 @@
 @interface DTCoreTextLayouter ()
 
 @property (nonatomic, strong) NSMutableArray *frames;
-@property (nonatomic, assign) dispatch_semaphore_t selfLock;
+@property (nonatomic, strong) dispatch_semaphore_t selfLock;
 
 - (CTFramesetterRef)framesetter;
 - (void)discardFramesetter;
@@ -54,8 +54,6 @@
 	SYNCHRONIZE_START(self)	// just to be sure
 	[self discardFramesetter];
 	SYNCHRONIZE_END(self)
-
-	dispatch_release(selfLock);
 }
 
 - (NSString *)description
