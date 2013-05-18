@@ -173,7 +173,7 @@ static BOOL _DTCoreTextLayoutFramesShouldDrawDebugFrames = NO;
 - (NSRange)attributedStringRangeForPoint:(CGPoint)point;
 {
     DTCoreTextLayoutLine *line = [self lineAtLocation:point];
-    NSInteger i = [line stringIndexForPosition:point];
+    NSInteger const i = (line == nil) ? NSNotFound : [line stringIndexForPosition:point];
     if (i != NSNotFound) {
         return NSMakeRange(i, 1);
     }
